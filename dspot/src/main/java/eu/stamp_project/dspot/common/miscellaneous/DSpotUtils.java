@@ -20,6 +20,7 @@ import spoon.support.JavaOutputProcessor;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -196,6 +197,26 @@ public class DSpotUtils {
                 element.addComment(comment);
             }
         }
+    }
+    public static void removeComments(CtElement element, String suffixOfComment) {
+        if (element instanceof CtLiteral) {
+            try {
+                CtElement parentLine = element.getParent(new LineFilter());
+                if (parentLine != null) {
+                    element = parentLine;
+                }
+            } catch (ParentNotInitializedException ignored) {
+
+            }
+        }
+
+        List<CtComment> ampComments = element.getComments().stream()
+                                             .filter(ctComment -> ctComment.getContent().startsWith(suffixOfComment))
+                                             .collect(Collectors.toList());
+        for (CtComment ampComment : ampComments) {
+            element.removeComment(ampComment);
+        }
+
     }
 
     public static final String PATH_TO_DSPOT_DEPENDENCIES = "target/dspot/dependencies/";

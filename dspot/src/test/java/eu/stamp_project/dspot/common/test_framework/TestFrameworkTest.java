@@ -30,11 +30,11 @@ public class TestFrameworkTest extends AbstractTestOnSample {
     @Before
     @Override
     public void setUp() {
+        super.setUp();
         UserInput configuration = new UserInput();
         configuration.setAbsolutePathToProjectRoot(new File("src/test/resources/sample/").getAbsolutePath());
         DSpotUtils.init(CommentEnum.Amplifier, "target/dspot/", configuration
                 .getFullClassPathWithExtraDependencies(), "src/test/resources/sample/");
-        super.setUp();
     }
 
     private CtMethod findAndRegister(String ctClass, String methodName) {
@@ -137,6 +137,7 @@ public class TestFrameworkTest extends AbstractTestOnSample {
 
     private final static String JUnit5WithExceptingThrown = "@org.junit.jupiter.api.Test" + AmplificationHelper.LINE_SEPARATOR +
             "public void testExpectAnException_failAssert0() {" + AmplificationHelper.LINE_SEPARATOR +
+            "    // AssertionGenerator generate try/catch block with fail statement" + AmplificationHelper.LINE_SEPARATOR +
             "    org.junit.jupiter.api.Assertions.assertThrows(java.lang.RuntimeException.class, () -> {" + AmplificationHelper.LINE_SEPARATOR +
             "        org.junit.jupiter.api.Assertions.assertTrue(true);" + AmplificationHelper.LINE_SEPARATOR +
             "        throwAnException();" + AmplificationHelper.LINE_SEPARATOR +

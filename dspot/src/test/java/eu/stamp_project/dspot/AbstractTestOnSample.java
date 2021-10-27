@@ -1,6 +1,7 @@
 package eu.stamp_project.dspot;
 
 import eu.stamp_project.dspot.assertiongenerator.assertiongenerator.AssertionGeneratorUtils;
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
 import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.dspot.common.test_framework.TestFramework;
 import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
@@ -46,6 +47,7 @@ public class AbstractTestOnSample {
         TestFramework.init(launcher.getFactory());
         DSpotCache.init(10000);
         RandomHelper.setSeedRandom(72L);
+        DSpotUtils.init(CommentEnum.None, null,null,null);
         this.testRunner = new TestRunner(getPathToProjectRoot(), "", false);
     }
 

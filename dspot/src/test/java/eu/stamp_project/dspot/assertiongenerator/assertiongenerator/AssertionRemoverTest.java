@@ -188,7 +188,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
             public boolean matches(CtInvocation element) {
                 return TestFramework.get().isAssert(element);
             }
-        }).forEach(assertionRemover::removeAssertion);
+        }).forEach(invocation -> assertionRemover.removeAssertion(invocation,true));
 
         final String expectedMethod = "@org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test1() {" + AmplificationHelper.LINE_SEPARATOR +
@@ -212,7 +212,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
             public boolean matches(CtInvocation element) {
                 return TestFramework.get().isAssert(element);
             }
-        }).forEach(assertionRemover::removeAssertion);
+        }).forEach(invocation -> assertionRemover.removeAssertion(invocation,true));
 
         final String expectedMethod = "@org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test1() {" + AmplificationHelper.LINE_SEPARATOR +
@@ -242,7 +242,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
             public boolean matches(CtInvocation element) {
                 return TestFramework.get().isAssert(element);
             }
-        }).forEach(assertionRemover::removeAssertion);
+        }).forEach(invocation -> assertionRemover.removeAssertion(invocation,true));
 
         final String expectedMethod = "@org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test2() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +

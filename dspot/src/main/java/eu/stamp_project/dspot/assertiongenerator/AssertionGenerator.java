@@ -113,7 +113,8 @@ public class AssertionGenerator {
     }
 
     /**
-     * Uses {@link AssertionRemover#removeAssertions(CtMethod, boolean)} to remove existing assertions from cloned test methods
+     * Uses {@link AssertionRemover#removeAssertions(CtMethod, boolean)} to remove existing assertions from cloned
+     * test methods, but leaves the arguments of the assertions
      * @param tests
      * @param cloneClass
      * @return
@@ -127,8 +128,8 @@ public class AssertionGenerator {
     }
 
     /**
-     * Uses {@link AssertionRemover#removeAssertions(CtMethod, boolean)} to remove existing assertions from cloned test
-     * methods
+     * Uses {@link AssertionRemover#removeAssertions(CtMethod, boolean)} to remove existing assertions and their
+     * arguments from cloned test methods
      * @param tests
      * @param cloneClass
      * @return

@@ -41,8 +41,7 @@ public class AssertionRemover {
                         .getElements(TestFramework.ASSERTIONS_FILTER)
                         .stream()
                         .filter(invocation -> !(invocation.getParent() instanceof CtRHSReceiver)) // it means that the return type is used in the test.
-                        .flatMap(invocation -> leaveArguments ? this.removeAssertion(invocation).stream() :
-                                this.removeAssertionFully(invocation).stream())
+                        .flatMap(invocation -> this.removeAssertion(invocation, leaveArguments).stream())
                         .collect(Collectors.toList())
         );
 
@@ -65,12 +64,13 @@ public class AssertionRemover {
     }
 
     /**
-     * Replaces an invocation with its arguments.
+     * Remove an invocation and optionally replace with its arguments
      *
      * @param invocation Invocation
+     * @param leaveArguments if true: replace the invocation with its arguments
      * @return the list of local variables extracted from assertions
      */
-    public List<CtLocalVariable<?>> removeAssertion(CtInvocation<?> invocation) {
+    public List<CtLocalVariable<?>> removeAssertion(CtInvocation<?> invocation, boolean leaveArguments) {
         List<CtLocalVariable<?>> variableReadsAsserted = new ArrayList<>();
         final Factory factory = invocation.getFactory();
         final TypeFilter<CtStatement> statementTypeFilter = new TypeFilter<CtStatement>(CtStatement.class) {
@@ -87,42 +87,40 @@ public class AssertionRemover {
                 if (clone instanceof CtUnaryOperator) {
                     clone = ((CtUnaryOperator) clone).getOperand();
                 }
-                if (clone instanceof CtLambda) {
-                    CtLambda lambda = ((CtLambda) clone);
-                    if (lambda.getBody() != null) {
-                        invocation.getParent(CtStatementList.class).insertBefore(
-                                statementTypeFilter,
-                                factory.createStatementList(lambda.getBody())
-                        );
-                    } else {
-                        // in case of we have something like () -> "string"
-                        if (lambda.getExpression() instanceof CtLiteral) {
-                            continue;
+                if (leaveArguments) {
+                    if (clone instanceof CtLambda) {
+                        CtLambda lambda = ((CtLambda) clone);
+                        if (lambda.getBody() != null) {
+                            invocation.getParent(CtStatementList.class)
+                                      .insertBefore(statementTypeFilter, factory.createStatementList(lambda.getBody()));
+                        } else {
+                            // in case of we have something like () -> "string"
+                            if (lambda.getExpression() instanceof CtLiteral) {
+                                continue;
+                            }
+                            // TODO check that we support all cases by casting into CtInvocation
+                            final CtBlock block = factory.createBlock();
+                            block.setStatements(Collections.singletonList((CtInvocation) lambda.getExpression().clone()));
+                            invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter,
+                                    factory.createStatementList(block));
                         }
-                        // TODO check that we support all cases by casting into CtInvocation
-                        final CtBlock block = factory.createBlock();
-                        block.setStatements(Collections.singletonList((CtInvocation)lambda.getExpression().clone()));
-                        invocation.getParent(CtStatementList.class).insertBefore(
-                                statementTypeFilter, factory.createStatementList(block)
-                        );
+                    } else if (clone instanceof CtStatement) {
+                        invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter,
+                                (CtStatement) clone);
+                        clone.putMetadata(AssertionGeneratorUtils.METADATA_WAS_IN_ASSERTION, true);
+                    } else if (!(clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
+                        // TODO EXPLAIN
+                        CtTypeReference<?> typeOfParameter = clone.getType();
+                        if (clone.getType() == null || factory.Type().NULL_TYPE.equals(clone.getType())) {
+                            typeOfParameter = factory.Type().createReference(Object.class);
+                        }
+                        final CtLocalVariable localVariable = factory.createLocalVariable(typeOfParameter,
+                                toCorrectJavaIdentifier(typeOfParameter.getSimpleName()) + "_" + counter[0]++, clone);
+                        invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, localVariable);
+                        localVariable.putMetadata(AssertionGeneratorUtils.METADATA_WAS_IN_ASSERTION, true);
                     }
-                } else if (clone instanceof CtStatement) {
-                    invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, (CtStatement) clone);
-                    clone.putMetadata(AssertionGeneratorUtils.METADATA_WAS_IN_ASSERTION, true);
-                } else if (!(clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
-                    // TODO EXPLAIN
-                    CtTypeReference<?> typeOfParameter = clone.getType();
-                    if (clone.getType()  == null || factory.Type().NULL_TYPE.equals(clone.getType())) {
-                        typeOfParameter = factory.Type().createReference(Object.class);
-                    }
-                    final CtLocalVariable localVariable = factory.createLocalVariable(
-                            typeOfParameter,
-                            toCorrectJavaIdentifier(typeOfParameter.getSimpleName()) + "_" + counter[0]++,
-                            clone
-                    );
-                    invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, localVariable);
-                    localVariable.putMetadata(AssertionGeneratorUtils.METADATA_WAS_IN_ASSERTION, true);
-                } else if (clone instanceof CtVariableRead && !(clone instanceof CtFieldRead)) {
+                }
+                if (clone instanceof CtVariableRead && !(clone instanceof CtFieldRead)) {
                     final CtVariableReference variable = ((CtVariableRead) clone).getVariable();
                     final List<CtLocalVariable> assertedVariables = invocation.getParent(CtBlock.class).getElements(
                             localVariable -> localVariable.getSimpleName().equals(variable.getSimpleName())
@@ -146,20 +144,6 @@ public class AssertionRemover {
         CtStatement topStatement = AssertionGeneratorUtils.getTopStatement(invocation);
         ((CtStatementList) topStatement.getParent()).removeStatement(topStatement);
         return variableReadsAsserted;
-    }
-
-    /**
-     * Removes an invocation
-     *
-     * @param invocation Invocation
-     * @return the list of local variables extracted from assertions
-     */
-    public List<CtLocalVariable<?>> removeAssertionFully(CtInvocation<?> invocation) {
-        // must find the first statement list to remove the invocation from it, e.g. the block that contains the assertions
-        // the assertion can be inside other stuff, than directly in the block
-        CtStatement topStatement = AssertionGeneratorUtils.getTopStatement(invocation);
-        ((CtStatementList) topStatement.getParent()).removeStatement(topStatement);
-        return Collections.emptyList();
     }
 
     private static String toCorrectJavaIdentifier(String name) {

@@ -79,6 +79,7 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
                 CtComment.CommentType.INLINE, CommentEnum.Amplifier);
         CtMethod<?> clone = CloneHelper.cloneTestMethodForAmp(testMethod, "_" + getSuffix());
         amplifiedElement.replace(originalElement);
+        DSpotUtils.removeComments(originalElement, getSuffix());
         Counter.updateInputOf(clone, 1);
         return clone;
     }

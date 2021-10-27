@@ -93,7 +93,7 @@ public class ArrayLiteralAmplifierTest extends AbstractTestOnSample {
         assertEquals(expectedValues.size(), mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
-            assertEquals(methodName + "litArray" + (i + 1), mutantMethod.getSimpleName());
+            assertEquals(methodName + "_litArray" + (i + 1), mutantMethod.getSimpleName());
             CtExpression mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtExpression.class)).get(0);
             assertTrue(mutantLiteral + " not in expected values",
                     expectedValues.contains(mutantLiteral.toString()));
