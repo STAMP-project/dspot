@@ -113,8 +113,10 @@ Amplify a specific test method from a specific test class
 ```bash
 java -jar /path/to/dspot-LATEST-jar-with-dependencies.jar --absolute-path-to-project-root <path> --test my.package.TestClass --cases testMethod
 ```
+ ### Command line options 
 
-### Command line options
+<details>
+  <summary>Full list of command line options</summary>
 
 ```
 Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--dev-friendly] [--example]
@@ -339,7 +341,9 @@ Usage: eu.stamp_project.Main [-hvV] [--allow-path-in-assertions] [--clean] [--de
                              Enable comment on amplified test: details steps of the amplification. Valid values: All,
                                Amplifier, Coverage, None. Default value: None
 ```
-    
+
+</details>
+
 For options that take list, the used separator is a comma `,`, whatever the platform you use.
 
 ### Maven plugin usage
@@ -403,7 +407,7 @@ For now, there are three implementations of the Input Ampl Distributor:
    * `SimpleInputAmplDistributor`: This distributor selects a fair number of amplified test method per Amplifier per test methods, if possible. The total budget is specified by the command line option ``--max-test-amplified`, and is the total number of amplified test methods to keep, _i.e._ it will be divide by the number of Amplifiers and by the number of test methods to be amplified.
                                     Example: We have 2 Amplifiers. We apply them to 2 test methods. For each test methods, amplifiers generate 4 new test methods, totally 8 amplified test methods. If the budget is 6, it will select: 3 amplified test methods per amplifier, and 2 for one test method and 2 for the other.
 
-#### Supported Features
+#### Supported Test Frameworks
 
 DSpot supports:
 
@@ -420,6 +424,19 @@ However, DSpot detects the used test framework at test class level.
 Please, do not amplify test classes that mix test frameworks (test methods in JUnit4 and JUnit5 within the same test class.)
 
 If you have such test class, please amplify the different test framework separately.
+
+#### Supported JDKs & Build Tools
+
+DSpot runs with the following Java versions:
+
+* Java 1.8
+* Java 11
+* Java 16 (used as JDK, not tested if it can support Java 16 language features)
+
+It can amplify tests of projects built with:
+
+* Maven 3.6
+* Gradle 7
 
 ## Minimizing and Prettifying DSpot Amplified Test Cases
 With the [DSpot Prettifier](dspot-prettifier) you can remove redundant assertions from your amplified test cases & give them more expressive names with the help of code2vec and context2vec.
