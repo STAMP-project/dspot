@@ -89,9 +89,10 @@ public class CommentTest {
         Main.main(new String[]{
                 "--verbose",
                 "--absolute-path-to-project-root", new File("src/test/resources/test-projects/").getAbsolutePath() + "/",
-                "--amplifiers", "FastLiteralAmplifier",
+                "--amplifiers", "MethodAdderOnExistingObjectsAmplifier",
                 "--test-criterion", "ExtendedCoverageSelector",
                 "--test", TEST_CASE,
+                "--cases", "test2",
                 "--clean",
                 "--with-comment=All",
                 "--dev-friendly",
@@ -100,7 +101,7 @@ public class CommentTest {
                 "/* Coverage improved at" + AmplificationHelper.LINE_SEPARATOR +
                         "    example.Example:" + AmplificationHelper.LINE_SEPARATOR +
                         "    charAt" + AmplificationHelper.LINE_SEPARATOR  +
-                        "    L. 7 +7 instr." + AmplificationHelper.LINE_SEPARATOR +
+                        "    L. 2 +4 instr." + AmplificationHelper.LINE_SEPARATOR +
                         "     */";
         String amplifierComment =
                 "        // AssertionGenerator: add assertion";
@@ -114,19 +115,17 @@ public class CommentTest {
         Main.main(new String[]{
                 "--verbose",
                 "--absolute-path-to-project-root", new File("src/test/resources/test-projects/").getAbsolutePath() + "/",
-                "--amplifiers", "FastLiteralAmplifier",
+                "--amplifiers", "MethodAdderOnExistingObjectsAmplifier",
                 "--test-criterion", "ExtendedCoverageSelector",
                 "--test", TEST_CASE,
                 "--clean",
                 "--with-comment=Amplifier",
                 "--dev-friendly",
         });
-        String commentAndExpression =
-                "        // FastLiteralAmplifier: change number from '1' to '0.0'" + AmplificationHelper.LINE_SEPARATOR +
-                "        // AssertionGenerator: create local variable with return value of invocation" + AmplificationHelper.LINE_SEPARATOR +
-                "        char o_test3_literalMutationNumber41__4 = ex.charAt(s, s.length() - 0);";
+        String comment =
+                "        // MethodAdderOnExistingObjectsAmplifier: added method on existing object";
         assertTrue(new File(PATH_OUTPUT_TEST_CLASS).exists());
-        assertFileContains(commentAndExpression);
+        assertFileContains(comment);
     }
 
     @Test

@@ -18,7 +18,6 @@ import eu.stamp_project.dspot.common.report.output.Output;
 import eu.stamp_project.dspot.common.collector.smtp.EmailSender;
 import eu.stamp_project.dspot.common.configuration.test_finder.TestFinder;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -148,15 +147,6 @@ public class InitializeDSpot {
         if (dependencies.isEmpty()) {
             dependencies = automaticBuilder.compileAndBuildClasspath();
             configuration.setDependencies(dependencies);
-        }
-        // TODO checks this. Since we support different Test Support, we may not need to add artificially junit in the classpath
-        if (!dependencies.contains("junit" + File.separator + "junit" + File.separator + "4")) {
-            dependencies = Test.class
-                    .getProtectionDomain()
-                    .getCodeSource()
-                    .getLocation()
-                    .getFile() +
-                    AmplificationHelper.PATH_SEPARATOR + dependencies;
         }
         if (!additionalClasspathElements.isEmpty()) {
             String pathToAdditionalClasspathElements = additionalClasspathElements;

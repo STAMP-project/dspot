@@ -240,7 +240,7 @@ public class NumberLiteralAmplifierTest extends AbstractTestOnSample {
         assertEquals(mutantMethodSize, mutantMethods.size());
         for (int i = 0; i < mutantMethods.size(); i++) {
             CtMethod mutantMethod = mutantMethods.get(i);
-            assertEquals(nameMethod + "litNum" + (i + 1), mutantMethod.getSimpleName());
+            assertEquals(nameMethod + "_litNum" + (i + 1), mutantMethod.getSimpleName());
             CtExpression mutantLiteral = mutantMethod.getBody().getElements(new TypeFilter<>(CtExpression.class)).get(0);
             if (mutantLiteral instanceof CtLiteral) {
                 assertNotEquals(originalValue, ((CtLiteral<?>) mutantLiteral).getValue());

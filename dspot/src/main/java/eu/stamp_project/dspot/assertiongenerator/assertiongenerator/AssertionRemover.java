@@ -34,14 +34,14 @@ public class AssertionRemover {
      * @param testMethod Test method
      * @return Test's clone without any assertion
      */
-    public CtMethod<?> removeAssertion(CtMethod<?> testMethod) {
+    public CtMethod<?> removeAssertions(CtMethod<?> testMethod, boolean leaveArguments) {
         CtMethod<?> testWithoutAssertion = CloneHelper.cloneTestMethodNoAmp(testMethod);
         variableAssertedPerTestMethod.put(testWithoutAssertion,
                 testWithoutAssertion
                         .getElements(TestFramework.ASSERTIONS_FILTER)
                         .stream()
                         .filter(invocation -> !(invocation.getParent() instanceof CtRHSReceiver)) // it means that the return type is used in the test.
-                        .flatMap(invocation -> this.removeAssertion(invocation).stream())
+                        .flatMap(invocation -> this.removeAssertion(invocation, leaveArguments).stream())
                         .collect(Collectors.toList())
         );
 
@@ -64,34 +64,13 @@ public class AssertionRemover {
     }
 
     /**
-     * Can be called after {@link AssertionRemover#removeAssertion(CtMethod)} to remove the statements that
-     * previously were arguments of assertions all the way at
-     * @param testMethod
-     * @return
-     */
-    public CtMethod<?> removeArgumentsOfTrailingAssertions(CtMethod<?> testMethod) {
-        List<CtStatement> testStatements = testMethod.getElements(new TypeFilter<>(CtStatement.class));
-
-        for (int i = testStatements.size() - 1; i >= 0; i--) {
-            CtStatement statement = testStatements.get(i);
-            Object metadata = statement.getMetadata(AssertionGeneratorUtils.METADATA_WAS_IN_ASSERTION);
-            if (metadata != null && (Boolean) metadata) {
-                testMethod.getBody().removeStatement(statement);
-            } else {
-                break;
-            }
-        }
-
-        return testMethod;
-    }
-
-    /**
-     * Replaces an invocation with its arguments.
+     * Remove an invocation and optionally replace with its arguments
      *
      * @param invocation Invocation
+     * @param leaveArguments if true: replace the invocation with its arguments
      * @return the list of local variables extracted from assertions
      */
-    public List<CtLocalVariable<?>> removeAssertion(CtInvocation<?> invocation) {
+    public List<CtLocalVariable<?>> removeAssertion(CtInvocation<?> invocation, boolean leaveArguments) {
         List<CtLocalVariable<?>> variableReadsAsserted = new ArrayList<>();
         final Factory factory = invocation.getFactory();
         final TypeFilter<CtStatement> statementTypeFilter = new TypeFilter<CtStatement>(CtStatement.class) {
@@ -108,42 +87,40 @@ public class AssertionRemover {
                 if (clone instanceof CtUnaryOperator) {
                     clone = ((CtUnaryOperator) clone).getOperand();
                 }
-                if (clone instanceof CtLambda) {
-                    CtLambda lambda = ((CtLambda) clone);
-                    if (lambda.getBody() != null) {
-                        invocation.getParent(CtStatementList.class).insertBefore(
-                                statementTypeFilter,
-                                factory.createStatementList(lambda.getBody())
-                        );
-                    } else {
-                        // in case of we have something like () -> "string"
-                        if (lambda.getExpression() instanceof CtLiteral) {
-                            continue;
+                if (leaveArguments) {
+                    if (clone instanceof CtLambda) {
+                        CtLambda lambda = ((CtLambda) clone);
+                        if (lambda.getBody() != null) {
+                            invocation.getParent(CtStatementList.class)
+                                      .insertBefore(statementTypeFilter, factory.createStatementList(lambda.getBody()));
+                        } else {
+                            // in case of we have something like () -> "string"
+                            if (lambda.getExpression() instanceof CtLiteral) {
+                                continue;
+                            }
+                            // TODO check that we support all cases by casting into CtInvocation
+                            final CtBlock block = factory.createBlock();
+                            block.setStatements(Collections.singletonList((CtInvocation) lambda.getExpression().clone()));
+                            invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter,
+                                    factory.createStatementList(block));
                         }
-                        // TODO check that we support all cases by casting into CtInvocation
-                        final CtBlock block = factory.createBlock();
-                        block.setStatements(Collections.singletonList((CtInvocation)lambda.getExpression().clone()));
-                        invocation.getParent(CtStatementList.class).insertBefore(
-                                statementTypeFilter, factory.createStatementList(block)
-                        );
+                    } else if (clone instanceof CtStatement) {
+                        invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter,
+                                (CtStatement) clone);
+                        clone.putMetadata(AssertionGeneratorUtils.METADATA_WAS_IN_ASSERTION, true);
+                    } else if (!(clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
+                        // TODO EXPLAIN
+                        CtTypeReference<?> typeOfParameter = clone.getType();
+                        if (clone.getType() == null || factory.Type().NULL_TYPE.equals(clone.getType())) {
+                            typeOfParameter = factory.Type().createReference(Object.class);
+                        }
+                        final CtLocalVariable localVariable = factory.createLocalVariable(typeOfParameter,
+                                toCorrectJavaIdentifier(typeOfParameter.getSimpleName()) + "_" + counter[0]++, clone);
+                        invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, localVariable);
+                        localVariable.putMetadata(AssertionGeneratorUtils.METADATA_WAS_IN_ASSERTION, true);
                     }
-                } else if (clone instanceof CtStatement) {
-                    invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, (CtStatement) clone);
-                    clone.putMetadata(AssertionGeneratorUtils.METADATA_WAS_IN_ASSERTION, true);
-                } else if (!(clone instanceof CtLiteral || clone instanceof CtVariableRead)) {
-                    // TODO EXPLAIN
-                    CtTypeReference<?> typeOfParameter = clone.getType();
-                    if (clone.getType()  == null || factory.Type().NULL_TYPE.equals(clone.getType())) {
-                        typeOfParameter = factory.Type().createReference(Object.class);
-                    }
-                    final CtLocalVariable localVariable = factory.createLocalVariable(
-                            typeOfParameter,
-                            toCorrectJavaIdentifier(typeOfParameter.getSimpleName()) + "_" + counter[0]++,
-                            clone
-                    );
-                    invocation.getParent(CtStatementList.class).insertBefore(statementTypeFilter, localVariable);
-                    localVariable.putMetadata(AssertionGeneratorUtils.METADATA_WAS_IN_ASSERTION, true);
-                } else if (clone instanceof CtVariableRead && !(clone instanceof CtFieldRead)) {
+                }
+                if (clone instanceof CtVariableRead && !(clone instanceof CtFieldRead)) {
                     final CtVariableReference variable = ((CtVariableRead) clone).getVariable();
                     final List<CtLocalVariable> assertedVariables = invocation.getParent(CtBlock.class).getElements(
                             localVariable -> localVariable.getSimpleName().equals(variable.getSimpleName())

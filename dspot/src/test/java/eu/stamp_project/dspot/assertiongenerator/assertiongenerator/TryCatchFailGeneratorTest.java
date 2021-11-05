@@ -5,7 +5,9 @@ import eu.stamp_project.testrunner.runner.Failure;
 import org.junit.Test;
 import spoon.reflect.declaration.CtMethod;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * Created by Benjamin DANGLOT
@@ -82,5 +84,7 @@ public class TryCatchFailGeneratorTest extends AbstractTestOnSample {
                         new Failure(testName, testClassName, new ArrayIndexOutOfBoundsException(-100))
                 );
         System.out.println(ctMethod);
+        assertThat(ctMethod.toString(), containsString("catch (java.lang.NullPointerException"));
+        assertThat(ctMethod.toString(), containsString("catch (java.lang.ArrayIndexOutOfBoundsException"));
     }
 }

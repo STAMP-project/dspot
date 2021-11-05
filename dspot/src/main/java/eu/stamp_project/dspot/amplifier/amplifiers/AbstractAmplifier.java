@@ -1,7 +1,10 @@
 package eu.stamp_project.dspot.amplifier.amplifiers;
 
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
 import eu.stamp_project.dspot.common.miscellaneous.CloneHelper;
 import eu.stamp_project.dspot.common.miscellaneous.Counter;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
+import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 
@@ -71,8 +74,12 @@ public abstract class AbstractAmplifier<T extends CtElement> implements Amplifie
     protected CtMethod<?> replace(T originalElement, T amplifiedElement, CtMethod<?> testMethod) {
         originalElement.replace(amplifiedElement);
         amplifiedElement.putMetadata(this.METADATA_KEY, true);
-        CtMethod<?> clone = CloneHelper.cloneTestMethodForAmp(testMethod, getSuffix());
+        DSpotUtils.addComment(amplifiedElement,
+                getSuffix() + ": changed '" + originalElement + "' to '" + amplifiedElement + "'",
+                CtComment.CommentType.INLINE, CommentEnum.Amplifier);
+        CtMethod<?> clone = CloneHelper.cloneTestMethodForAmp(testMethod, "_" + getSuffix());
         amplifiedElement.replace(originalElement);
+        DSpotUtils.removeComments(originalElement, getSuffix());
         Counter.updateInputOf(clone, 1);
         return clone;
     }

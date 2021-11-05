@@ -48,7 +48,7 @@ public class TestWithLogGeneratorTest extends AbstractTestOnSample {
                         "    eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.testwithloggenerator.objectlogsyntaxbuilder_constructs.ObjectLog.log(o_test2__7, \"o_test2__7\", \"test2__7___end\");" + AmplificationHelper.LINE_SEPARATOR +
                         "}",
                 eu.stamp_project.dspot.assertiongenerator.assertiongenerator.methodreconstructor.observer.TestWithLogGenerator.createTestWithLog(
-                        new AssertionRemover().removeAssertion(findMethod("fr.inria.sample.TestClassWithLoop", "test2")),
+                        new AssertionRemover().removeAssertions(findMethod("fr.inria.sample.TestClassWithLoop", "test2"), true),
                         "fr.inria.sample",
                         Collections.emptyList()).toString()
         );

@@ -1,10 +1,9 @@
 package eu.stamp_project.dspot.common.test_framework.implementations.junit;
 
+import eu.stamp_project.dspot.common.configuration.options.CommentEnum;
+import eu.stamp_project.dspot.common.miscellaneous.DSpotUtils;
 import eu.stamp_project.testrunner.runner.Failure;
-import spoon.reflect.code.CtBlock;
-import spoon.reflect.code.CtFieldRead;
-import spoon.reflect.code.CtInvocation;
-import spoon.reflect.code.CtLambda;
+import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.reference.CtExecutableReference;
@@ -72,6 +71,10 @@ public class JUnit5Support extends JUnitSupport {
         );
         CtBlock body = factory.Core().createBlock();
         body.addStatement(invocation);
+        DSpotUtils.addComment(invocation,
+                "AssertionGenerator generate try/catch block with fail statement",
+                CtComment.CommentType.INLINE,
+                CommentEnum.Amplifier);
 
         test.setBody(body);
         test.setSimpleName(test.getSimpleName() + "_failAssert" + (numberOfFail));

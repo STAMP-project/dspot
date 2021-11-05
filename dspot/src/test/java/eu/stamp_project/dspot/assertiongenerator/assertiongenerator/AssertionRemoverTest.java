@@ -43,7 +43,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
         CtClass testClass = findClass("fr.inria.sample.TestClassWithAssert");
         final CtMethod<?> test1 = (CtMethod<?>) testClass.getMethodsByName("testWithALambdaWithNullBody").get(0);
         final AssertionRemover assertionRemover = new AssertionRemover();
-        final CtMethod<?> ctMethod = assertionRemover.removeAssertion(test1);
+        final CtMethod<?> ctMethod = assertionRemover.removeAssertions(test1, true);
         final String expected = "@org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
                 "public void testWithALambdaWithNullBody() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "    new fr.inria.sample.ClassThrowException().throwException();" + AmplificationHelper.LINE_SEPARATOR +
@@ -65,7 +65,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
         CtClass testClass = findClass("fr.inria.sample.TestClassWithAssert");
         final CtMethod<?> test1 = (CtMethod<?>) testClass.getMethodsByName("testWithNewSomethingWithoutLocalVariables").get(0);
         final AssertionRemover assertionRemover = new AssertionRemover();
-        final CtMethod<?> ctMethod = assertionRemover.removeAssertion(test1);
+        final CtMethod<?> ctMethod = assertionRemover.removeAssertions(test1, true);
         final CtMethod<?> testWithLog =
                 TestWithLogGenerator.createTestWithLog(ctMethod, "fr.inria.sample", Collections.emptyList());
         assertEquals("@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
@@ -88,7 +88,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
         final CtClass<?> testClass = findClass("fr.inria.sample.TestClassWithAssert");
         final CtMethod<?> test = findMethod(testClass, "testWithAMethodCallThatContainsAssertionsAndItsReturnedValueIsUsed");
         final AssertionRemover assertionRemover = new AssertionRemover();
-        final CtMethod<?> ctMethod = assertionRemover.removeAssertion(test);
+        final CtMethod<?> ctMethod = assertionRemover.removeAssertions(test, true);
         final String expectedMethodString = "@org.junit.Test(timeout = 10000)" + AmplificationHelper.LINE_SEPARATOR +
                 "public void testWithAMethodCallThatContainsAssertionsAndItsReturnedValueIsUsed() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
                 "    java.lang.String aString = verify(\"aString\");" + AmplificationHelper.LINE_SEPARATOR +
@@ -104,7 +104,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
         final CtClass<?> testClass = findClass("fr.inria.sample.TestClassWithAssert");
         final CtMethod<?> testWithALambda = findMethod(testClass, "testWithTryWithResource");
         final AssertionRemover assertionRemover = new AssertionRemover();
-        final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithALambda);
+        final CtMethod<?> ctMethod = assertionRemover.removeAssertions(testWithALambda, true);
         final String expectedBody = "{" + AmplificationHelper.LINE_SEPARATOR +
                 "    try (final java.io.FileInputStream fis = new java.io.FileInputStream(new java.io.File(\".\"))) {" + AmplificationHelper.LINE_SEPARATOR +
                 "        fis.toString();" + AmplificationHelper.LINE_SEPARATOR +
@@ -121,7 +121,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
         final CtClass<?> testClass = findClass("fr.inria.sample.TestClassWithAssert");
         final CtMethod<?> testWithALambda = findMethod(testClass, "testWithALambda");
         final AssertionRemover assertionRemover = new AssertionRemover();
-        final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithALambda);
+        final CtMethod<?> ctMethod = assertionRemover.removeAssertions(testWithALambda, true);
         System.out.println(ctMethod);
         assertFalse(ctMethod.getBody().getStatements().isEmpty());
     }
@@ -136,7 +136,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
         final CtClass<?> testClass = findClass("fr.inria.sample.TestClassWithAssert");
         final CtMethod<?> testWithCatchVariable = findMethod(testClass, "testWithArray");
         final AssertionRemover assertionRemover = new AssertionRemover();
-        final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithCatchVariable);
+        final CtMethod<?> ctMethod = assertionRemover.removeAssertions(testWithCatchVariable, true);
         assertTrue(
                 ctMethod.getElements(new TypeFilter<CtLocalVariable<?>>(CtLocalVariable.class))
                         .stream()
@@ -168,7 +168,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
         final CtClass<?> testClass = findClass("fr.inria.sample.TestClassWithAssert");
         final CtMethod<?> testWithCatchVariable = findMethod(testClass, "test3_exceptionCatch");
         final AssertionRemover assertionRemover = new AssertionRemover();
-        final CtMethod<?> ctMethod = assertionRemover.removeAssertion(testWithCatchVariable);
+        final CtMethod<?> ctMethod = assertionRemover.removeAssertions(testWithCatchVariable, true);
         assertTrue(ctMethod.getElements(new TypeFilter<>(CtCatch.class)).isEmpty());
         assertTrue(ctMethod.getElements(new TypeFilter<>(CtTry.class)).isEmpty());
         assertTrue(ctMethod.getElements(new TypeFilter<CtInvocation>(CtInvocation.class) {
@@ -188,7 +188,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
             public boolean matches(CtInvocation element) {
                 return TestFramework.get().isAssert(element);
             }
-        }).forEach(assertionRemover::removeAssertion);
+        }).forEach(invocation -> assertionRemover.removeAssertion(invocation,true));
 
         final String expectedMethod = "@org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test1() {" + AmplificationHelper.LINE_SEPARATOR +
@@ -212,7 +212,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
             public boolean matches(CtInvocation element) {
                 return TestFramework.get().isAssert(element);
             }
-        }).forEach(assertionRemover::removeAssertion);
+        }).forEach(invocation -> assertionRemover.removeAssertion(invocation,true));
 
         final String expectedMethod = "@org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test1() {" + AmplificationHelper.LINE_SEPARATOR +
@@ -242,7 +242,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
             public boolean matches(CtInvocation element) {
                 return TestFramework.get().isAssert(element);
             }
-        }).forEach(assertionRemover::removeAssertion);
+        }).forEach(invocation -> assertionRemover.removeAssertion(invocation,true));
 
         final String expectedMethod = "@org.junit.Test" + AmplificationHelper.LINE_SEPARATOR +
                 "public void test2() throws java.lang.Exception {" + AmplificationHelper.LINE_SEPARATOR +
@@ -281,7 +281,7 @@ public class AssertionRemoverTest extends AbstractTestOnSample {
         final CtClass<?> testClass = findClass("fr.inria.helper.TestWithMultipleAsserts");
         final AssertionRemover assertionRemover = new AssertionRemover();
         final CtMethod<?> testMethod = testClass.getMethodsByName("test").get(0);
-        final CtMethod<?> removedAssertion = assertionRemover.removeAssertion(testMethod);
+        final CtMethod<?> removedAssertion = assertionRemover.removeAssertions(testMethod, true);
         assertEquals(4, removedAssertion.getBody().getStatements().size());
     }
 }

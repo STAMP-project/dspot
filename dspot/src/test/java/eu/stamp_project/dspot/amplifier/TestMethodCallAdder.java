@@ -30,6 +30,7 @@ public class TestMethodCallAdder extends AbstractTestOnSample {
     @Before
     @Override
     public void setUp() {
+        super.setUp();
         UserInput configuration = new UserInput();
         configuration.setAbsolutePathToProjectRoot(new File("src/test/resources/sample/").getAbsolutePath());
 
@@ -37,7 +38,6 @@ public class TestMethodCallAdder extends AbstractTestOnSample {
                 configuration.getFullClassPathWithExtraDependencies(),
                 "src/test/resources/sample/"
         );
-        super.setUp();
     }
 
     @Test

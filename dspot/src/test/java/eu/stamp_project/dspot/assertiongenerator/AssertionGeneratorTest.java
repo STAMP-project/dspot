@@ -115,7 +115,7 @@ public class AssertionGeneratorTest extends AbstractTestOnSample {
         final CtClass<?> testClass = findClass("fr.inria.sample.TestClassWithoutAssert");
         final CtMethod<?> testOnClass = findMethod(testClass, "testOnClass");
         final AssertionRemover assertionRemover = new AssertionRemover();
-        final CtMethod<?> testWithoutAssertions = assertionRemover.removeAssertion(testOnClass);
+        final CtMethod<?> testWithoutAssertions = assertionRemover.removeAssertions(testOnClass, true);
         System.out.println(
                 assertionGenerator.removeAndAmplifyAssertions(testClass, Collections.singletonList(testWithoutAssertions))
         );

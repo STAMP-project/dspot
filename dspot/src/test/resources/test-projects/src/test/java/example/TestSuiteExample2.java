@@ -18,7 +18,8 @@ public class TestSuiteExample2 {
     public void test4() {
         example.Example ex = new example.Example();
         java.lang.String s = "abcd";
-        org.junit.Assert.assertEquals('d', ex.charAt(s, 12));
+        char findChar = ex.charAt(s, 12);
+        org.junit.Assert.assertEquals('d', findChar);
     }
 
     @org.junit.Test
@@ -42,7 +43,8 @@ public class TestSuiteExample2 {
     @org.junit.Test
     public void test2() {
         example.Example ex = new example.Example();
-        org.junit.Assert.assertEquals('d', ex.charAt("abcd", 3));
+        char findChar = ex.charAt("abcd", 3);
+        org.junit.Assert.assertEquals('d', findChar);
     }
 }
 

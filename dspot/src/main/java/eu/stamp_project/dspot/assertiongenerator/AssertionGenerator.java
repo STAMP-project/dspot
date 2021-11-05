@@ -106,36 +106,37 @@ public class AssertionGenerator {
         CtType<?> cloneClass = testClass.clone();
         testClass.getPackage().addType(cloneClass);
         if (devFriendlyAmplification) {
-            return new TestTuple(cloneClass, removeAssertionsAndTrailingInvocations(tests,cloneClass));
+            return new TestTuple(cloneClass, removeAssertionsCompletely(tests,cloneClass));
         } else {
             return new TestTuple(cloneClass, removeAssertions(tests, cloneClass));
         }
     }
 
     /**
-     * Uses {@link AssertionRemover#removeAssertion(CtMethod)} to remove existing assertions from cloned test methods
+     * Uses {@link AssertionRemover#removeAssertions(CtMethod, boolean)} to remove existing assertions from cloned
+     * test methods, but leaves the arguments of the assertions
      * @param tests
      * @param cloneClass
      * @return
      */
     private List<CtMethod<?>> removeAssertions(List<CtMethod<?>> tests, CtType<?> cloneClass){
         List<CtMethod<?>> testsWithoutAssertions = tests.stream()
-                .map(this.assertionRemover::removeAssertion)
+                .map(test -> this.assertionRemover.removeAssertions(test, true))
                 .collect(Collectors.toList());
         testsWithoutAssertions.forEach(cloneClass::addMethod);
         return testsWithoutAssertions;
     }
 
     /**
-     * Uses {@link AssertionRemover#removeAssertion(CtMethod)} to remove existing assertions from cloned test methods
+     * Uses {@link AssertionRemover#removeAssertions(CtMethod, boolean)} to remove existing assertions and their
+     * arguments from cloned test methods
      * @param tests
      * @param cloneClass
      * @return
      */
-    private List<CtMethod<?>> removeAssertionsAndTrailingInvocations(List<CtMethod<?>> tests, CtType<?> cloneClass){
+    private List<CtMethod<?>> removeAssertionsCompletely(List<CtMethod<?>> tests, CtType<?> cloneClass){
         List<CtMethod<?>> testsWithoutAssertions = tests.stream()
-                .map(this.assertionRemover::removeAssertion)
-                .map(this.assertionRemover::removeArgumentsOfTrailingAssertions)
+                .map(test -> this.assertionRemover.removeAssertions(test, false))
                 .collect(Collectors.toList());
         testsWithoutAssertions.forEach(cloneClass::addMethod);
         return testsWithoutAssertions;
