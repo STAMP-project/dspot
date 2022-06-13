@@ -78,7 +78,7 @@
         <dependency>
             <groupId>eu.stamp-project</groupId>
             <artifactId>test-runner</artifactId>
-            <version>3.0.0</version>
+            <version>4.11</version>
             <classifier>jar-with-dependencies</classifier>
         </dependency>
 
