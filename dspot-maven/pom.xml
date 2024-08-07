@@ -60,14 +60,14 @@
             <plugin>
                 <groupId>fr.inria.gforge.spoon</groupId>
                 <artifactId>spoon-maven-plugin</artifactId>
-                <version>3.2</version>
+                <version>3.8.0</version>
                 <executions>
-                    <execution>
+<!--                    <execution>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>generate</goal>
                         </goals>
-                    </execution>
+                    </execution>-->
                 </executions>
                 <configuration>
                     <processors>
